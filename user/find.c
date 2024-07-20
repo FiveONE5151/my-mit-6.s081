@@ -55,12 +55,10 @@ int find(char *path, char *target)
             memmove(p, de.name, DIRSIZ);
             p[DIRSIZ] = 0;
             find(buf, target);
-
-            break;
         }
-        close(fd);
-        return 1;
     }
+    close(fd);
+    return 1;
 }
 
 int main(int argc, char *argv[])
