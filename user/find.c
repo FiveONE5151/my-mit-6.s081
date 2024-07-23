@@ -38,7 +38,7 @@ int find(char *path, char *target)
         p += 1;
 
         if (strcmp(p, target) == 0)
-            printf("%s\n", path);
+            fprintf(1, "%s\n", path);
         break;
 
     case T_DIR:
