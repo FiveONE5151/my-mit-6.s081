@@ -11,10 +11,10 @@ uint64
 sys_exit(void)
 {
   int n;
-  if(argint(0, &n) < 0)
+  if (argint(0, &n) < 0)
     return -1;
   exit(n);
-  return 0;  // not reached
+  return 0; // not reached
 }
 
 uint64
@@ -33,7 +33,7 @@ uint64
 sys_wait(void)
 {
   uint64 p;
-  if(argaddr(0, &p) < 0)
+  if (argaddr(0, &p) < 0)
     return -1;
   return wait(p);
 }
@@ -44,10 +44,10 @@ sys_sbrk(void)
   int addr;
   int n;
 
-  if(argint(0, &n) < 0)
+  if (argint(0, &n) < 0)
     return -1;
   addr = myproc()->sz;
-  if(growproc(n) < 0)
+  if (growproc(n) < 0)
     return -1;
   return addr;
 }
@@ -58,12 +58,14 @@ sys_sleep(void)
   int n;
   uint ticks0;
 
-  if(argint(0, &n) < 0)
+  if (argint(0, &n) < 0)
     return -1;
   acquire(&tickslock);
   ticks0 = ticks;
-  while(ticks - ticks0 < n){
-    if(myproc()->killed){
+  while (ticks - ticks0 < n)
+  {
+    if (myproc()->killed)
+    {
       release(&tickslock);
       return -1;
     }
@@ -78,7 +80,7 @@ sys_kill(void)
 {
   int pid;
 
-  if(argint(0, &pid) < 0)
+  if (argint(0, &pid) < 0)
     return -1;
   return kill(pid);
 }
@@ -94,4 +96,20 @@ sys_uptime(void)
   xticks = ticks;
   release(&tickslock);
   return xticks;
+}
+
+/**
+ * Add a sys_trace() function in kernel/sysproc.c that implements the new system call by remembering its argument in a new variable in the proc structure (see kernel/proc.h).
+ * The functions to retrieve system call arguments from user space are in kernel/syscall.c, and you can see examples of their use in kernel/sysproc.c.
+ */
+uint64
+sys_trace(void)
+{
+  int mask;                 // mask of the tracked syscall number
+  if (argint(0, &mask) < 0) // retrieve trace(syscall) argument from user space
+    return -1;
+  struct proc *p;
+  p = myproc();
+  p->tracedCall = mask; // save the traced system call into process struct
+  return 0;
 }
