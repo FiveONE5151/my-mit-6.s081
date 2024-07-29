@@ -6,6 +6,7 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+#include "sysinfo.h"
 
 uint64
 sys_exit(void)
@@ -111,5 +112,22 @@ sys_trace(void)
   struct proc *p;
   p = myproc();
   p->tracedCall = mask; // save the traced system call into process struct
+  return 0;
+}
+
+uint64
+sys_sysinfo(void)
+{
+  uint64 psysinfo;
+  if (argaddr(0, &psysinfo) < 0) // fetch the pointer to sysinfo struct from user space
+    return -1;
+  struct proc *p = myproc();
+  struct sysinfo si;
+  si.freemem = nmem();
+  si.nproc = numproc();
+  // printf("sizeof sysinfo: %d sizeof si: %d", sizeof(struct sysinfo), sizeof(si));
+  // 注意, 如果sizeof(sysinfo)会把sysinfo解释称一个名字, 而不是结构体, 会输出1
+  if (copyout(p->pagetable, psysinfo, (char *)&si, sizeof(si)) < 0)
+    return -1;
   return 0;
 }
